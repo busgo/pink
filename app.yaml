@@ -1,0 +1,10 @@
+# http
+port: 8001
+
+# etcd
+etcd:
+  endpoints:
+    - "127.0.0.1:2379"
+  user_name:
+  password:
+  dial_timeout: 5

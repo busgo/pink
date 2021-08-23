@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+  etcd:
+    image: gcr.io/etcd-development/etcd:v3.5.0
+    container_name: etcd
+    entrypoint: /usr/local/bin/etcd
+    command: -name s1 -data-dir /etcd-data -listen-client-urls http://0.0.0.0:2379 -advertise-client-urls http://0.0.0.0:2379 -listen-peer-urls http://0.0.0.0:2380 -initial-advertise-peer-urls http://0.0.0.0:2380 -initial-cluster s1=http://0.0.0.0:2380
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+  pink:
+    build: .
+    container_name: pink
+    ports:
+      - "8001:8001"
+    links:
+      - etcd
+    depends_on:
+      - etcd
+  console:
+    build:
+      context: ./static/
+      dockerfile: Dockerfile
+    container_name: pink-console
+    ports:
+      - "8002:8002"
+    links:
+      - pink
+    depends_on:
+      - pink
+  user:
+    build:
+      context: ./example/pink-user/
+      dockerfile: Dockerfile
+    container_name: pink-user
+    links:
+      - etcd
+    depends_on:
+      - pink
+      - etcd
+  trade:
+    build:
+      context: ./example/pink-trade/
+      dockerfile: Dockerfile
+    container_name: pink-trade
+    links:
+      - etcd
+    depends_on:
+      - pink
+      - etcd

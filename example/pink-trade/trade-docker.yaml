@@ -1,0 +1,8 @@
+# etcd
+etcd:
+  endpoints:
+    - "etcd:2379"
+  user_name:
+  password:
+  dial_timeout: 5
+group: trade
