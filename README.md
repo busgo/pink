@@ -234,4 +234,4 @@ such as  /pink/execute/history/snapshots/201901011111111323
 
 ##  License
 
-Forest is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
+Pink is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
