@@ -13,7 +13,9 @@ type AppConf struct {
 		Password    string   `yaml:"password"`
 		DialTimeout int64    `yaml:"dial_timeout"`
 	}
-
+	Mysql struct {
+		DSN string `yaml:"dsn"`
+	}
 	Port int32 `yaml:"port"`
 }
 
