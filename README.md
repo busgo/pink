@@ -218,8 +218,8 @@ such as  /pink/execute/history/snapshots/201901011111111323
 4. ~~手动触发任务~~
 5. ~~任务作业 Go sdk~~
 6. ~~任务管理控制台~~
-7. 任务报表统计
-8. 任务故障转移
+7. 任务作业报表统计
+8. 任务作业故障转移
 9. 任务作业分片
 10. 任务作业 Java sdk
 11. 任务调度计划全量同步
@@ -234,4 +234,4 @@ such as  /pink/execute/history/snapshots/201901011111111323
 
 ##  License
 
-Forest is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
+Pink is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
