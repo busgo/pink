@@ -17,7 +17,9 @@ type AppConf struct {
 		DSN string
 	}
 	Log struct {
-		FileName string
+		FileName    string
+		Level       int32
+		ServiceName string
 	}
 	Port int32
 }
@@ -37,5 +39,8 @@ func NewAppConf(filePath string) (*AppConf, error) {
 	}
 	c := new(AppConf)
 	err = v.Unmarshal(c)
+	if err == nil {
+		_ = log.NewLoggerSugar(c.Log.ServiceName, c.Log.FileName, c.Log.Level)
+	}
 	return c, err
 }

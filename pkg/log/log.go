@@ -1,10 +1,11 @@
 package log
 
 import (
-	"time"
-
+	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"os"
+	"time"
 )
 
 const CallerSkipNum = 1
@@ -48,12 +49,35 @@ func init() {
 	s = logger.Sugar()
 }
 
-func NewLoggerSugar(config zap.Config) error {
+func NewLoggerSugar(serviceName, logFile string, level int32) error {
 
-	logger, err := config.Build(zap.AddCallerSkip(CallerSkipNum))
-	if err != nil {
-		return err
+	hook := &lumberjack.Logger{
+		Filename:   logFile, // 日志文件路径
+		MaxSize:    128,     // 每个日志文件保存的大小 单位:M
+		MaxAge:     7,       // 文件最多保存多少天
+		MaxBackups: 30,      // 日志文件最多保存多少个备份
+		Compress:   false,   // 是否压缩
 	}
+
+	fileWriter := zapcore.AddSync(hook)
+
+	writes := []zapcore.WriteSyncer{fileWriter}
+	if zapcore.Level(level) == zapcore.DebugLevel {
+		writes = append(writes, zapcore.AddSync(os.Stdout))
+	}
+
+	lowPriority := zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
+		return lev >= zap.DebugLevel
+	})
+
+	zcore := zapcore.NewCore(
+		zapcore.NewJSONEncoder(zapEncoderConfig()),
+		zapcore.NewMultiWriteSyncer(writes...),
+		lowPriority,
+	)
+
+	zap.Fields(zap.String("service_name", serviceName))
+	logger := zap.New(zcore, zap.AddCallerSkip(CallerSkipNum))
 	s = logger.Sugar()
 	return nil
 }

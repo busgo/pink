@@ -14,3 +14,5 @@ mysql:
 
 log:
   fileName: pink.log
+  level: 1
+  serviceName: pink
