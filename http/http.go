@@ -6,10 +6,10 @@ import (
 	"github.com/busgo/pink/http/handler"
 	"github.com/busgo/pink/node"
 	"github.com/busgo/pink/pkg/etcd"
+	"github.com/busgo/pink/pkg/log"
 	"github.com/busgo/pink/pkg/util"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"log"
 )
 
 const (
@@ -96,14 +96,14 @@ func (s *Service) Run() error {
 
 	err := s.node.Run()
 	if err != nil {
-		log.Printf("the pink node run fail:%+v", err)
+		log.Errorf("the pink node run fail:%+v", err)
 		return err
 	}
 
-	log.Printf("the http service listen to %s", s.addr)
+	log.Infof("the http service listen to %s", s.addr)
 	err = s.router.Start(s.addr)
 	if err != nil {
-		log.Printf("the http service for  %s start fail:%+v", s.addr, err)
+		log.Errorf("the http service for  %s start fail:%+v", s.addr, err)
 	}
 	return err
 }

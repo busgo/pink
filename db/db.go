@@ -12,7 +12,7 @@ type DB struct {
 
 func NewDB(app *conf.AppConf) *DB {
 
-	db, err := sqlx.Connect("mysql", "")
+	db, err := sqlx.Connect("mysql", app.Mysql.DSN)
 	if err != nil {
 		panic(err)
 	}

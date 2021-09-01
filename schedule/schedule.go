@@ -5,10 +5,10 @@ import (
 	"github.com/busgo/pink/executor"
 	"github.com/busgo/pink/pkg/bus"
 	"github.com/busgo/pink/pkg/etcd"
+	"github.com/busgo/pink/pkg/log"
 	"github.com/busgo/pink/pkg/protocol"
 	"github.com/busgo/pink/pkg/protocol/builder"
 	"github.com/robfig/cron"
-	"log"
 	"strings"
 	"sync"
 	"time"
@@ -115,16 +115,16 @@ func (sch *PinkScheduler) scheduleLoop() {
 		select {
 		case <-timer.C:
 			duration := sch.trySchedule()
-			log.Printf("the pink schedule plan %ds after to try schedule", duration/time.Second)
+			log.Infof("the pink schedule plan %ds after to try schedule", duration/time.Second)
 			timer.Reset(duration)
 		case event := <-sch.changeEventCh:
-			log.Printf("the pink scheduler handle job conf change event:%+v", event)
+			log.Infof("the pink scheduler handle job conf change event:%+v", event)
 			sch.changeEventHandle(event)
 			duration := sch.trySchedule()
-			log.Printf("the pink scheduler plan %ds after to try schedule", duration/time.Second)
+			log.Infof("the pink scheduler plan %ds after to try schedule", duration/time.Second)
 			timer.Reset(duration)
 		case state := <-sub.Receive():
-			log.Printf("the pink scheduler receive the pink node state change event %d", state)
+			log.Infof("the pink scheduler receive the pink node state change event %d", state)
 			sch.state = state.(int)
 		}
 	}
@@ -187,11 +187,11 @@ func (sch *PinkScheduler) deleteEventHandle(j *protocol.JobConf) {
 
 	plan := sch.getSchedulePlan(j.Id)
 	if plan == nil {
-		log.Printf("the pink scheduler found the schedule  plan  is nil,details:%+v", j)
+		log.Warnf("the pink scheduler found the schedule  plan  is nil,details:%+v", j)
 		return
 	}
 	sch.Lock()
-	log.Printf("the pink scheduler start delete the schedule plan:%+v", plan)
+	log.Infof("the pink scheduler start delete the schedule plan:%+v", plan)
 	delete(sch.schedulePlans, j.Id)
 	sch.Unlock()
 
@@ -203,35 +203,35 @@ func (sch *PinkScheduler) updateEventHandle(j *protocol.JobConf) {
 	plan := sch.getSchedulePlan(j.Id)
 	if plan == nil {
 		if protocol.JobState(j.State) == protocol.JobNormalState {
-			log.Printf("the pink scheduler found schedule plan is nil,sudo create create event plan:%+v", j)
+			log.Infof("the pink scheduler found schedule plan is nil,sudo create create event plan:%+v", j)
 			sch.createEventHandle(j)
 			return
 		}
-		log.Printf("the pink scheduler found schedule plan is nil, the job conf state  is stop %+v", j)
+		log.Warnf("the pink scheduler found schedule plan is nil, the job conf state  is stop %+v", j)
 		return
 	}
 
 	if j.State != int32(protocol.JobNormalState) {
 
-		log.Printf("the job state is stop start delete schedule plan,details:%+v", j)
+		log.Infof("the job state is stop start delete schedule plan,details:%+v", j)
 		sch.deleteEventHandle(j)
 		return
 	}
 
 	if plan.Version > j.Version {
-		log.Printf("the pink scheduler found schedule plan version:%d > job version:%d", plan.Version, j.Version)
+		log.Warnf("the pink scheduler found schedule plan version:%d > job version:%d", plan.Version, j.Version)
 		return
 	}
 
 	schedule, err := cron.Parse(j.Cron)
 	if err != nil {
-		log.Printf("the pink scheduler parse the job cron is error,details:%+v,err:%+v", j, err)
+		log.Errorf("the pink scheduler parse the job cron is error,details:%+v,err:%+v", j, err)
 		return
 	}
 
 	schedulePlan := builder.NewSchedulePlan(j, schedule)
 	schedulePlan.BeforeTime = plan.BeforeTime
-	log.Printf("the pink scheduler start handle update schedule plan:%+v", schedulePlan)
+	log.Infof("the pink scheduler start handle update schedule plan:%+v", schedulePlan)
 	sch.Lock()
 	sch.schedulePlans[j.Id] = schedulePlan
 	sch.Unlock()
@@ -243,23 +243,23 @@ func (sch *PinkScheduler) createEventHandle(j *protocol.JobConf) {
 
 	plan := sch.getSchedulePlan(j.Id)
 	if plan != nil {
-		log.Printf("the schedule plan has exists ,j:%+v,plan:%+v", j, plan)
+		log.Warnf("the schedule plan has exists ,j:%+v,plan:%+v", j, plan)
 		return
 	}
 
 	if j.State != int32(protocol.JobNormalState) {
-		log.Printf("the job state is stop,details:%+v", j)
+		log.Warnf("the job state is stop,details:%+v", j)
 		return
 	}
 
 	schedule, err := cron.Parse(j.Cron)
 	if err != nil {
-		log.Printf("parse the job cron is error,details:%+v,err:%+v", j, err)
+		log.Errorf("parse the job cron is error,details:%+v,err:%+v", j, err)
 		return
 	}
 
 	schedulePlan := builder.NewSchedulePlan(j, schedule)
-	log.Printf("the create event handle create schedule plan:%+v", schedulePlan)
+	log.Infof("the create event handle create schedule plan:%+v", schedulePlan)
 	sch.Lock()
 	sch.schedulePlans[j.Id] = schedulePlan
 	sch.Unlock()

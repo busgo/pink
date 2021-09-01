@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"github.com/busgo/pink/pkg/balance"
 	"github.com/busgo/pink/pkg/etcd"
+	"github.com/busgo/pink/pkg/log"
 	"github.com/busgo/pink/pkg/protocol"
-	"log"
+
 	"strings"
 	"sync"
 	"time"
@@ -34,13 +35,14 @@ func (managed *PinkGroupManaged) lookup() {
 
 	keys, _, err := managed.cli.GetWithPrefix(context.Background(), protocol.GroupPath)
 	if err != nil {
-		log.Panicf("the pink group managed get group list fail:%+v", err)
+		log.Errorf("the pink group managed get group list fail:%+v", err)
+		panic(err)
 	}
 
 	for _, key := range keys {
 		managed.addPinkGroup(getSuffixName(key), key)
 	}
-	log.Printf("the pink group managed watch for %s", protocol.GroupPath)
+	log.Infof("the pink group managed watch for %s", protocol.GroupPath)
 	response := managed.cli.WatchWithPrefix(protocol.GroupPath)
 	for {
 		select {
@@ -77,7 +79,7 @@ func (managed *PinkGroupManaged) deletePinkGroup(name string) {
 	group.close()
 	delete(managed.groups, name)
 	managed.Unlock()
-	log.Printf("the pink group managed delete group:%s success", group.name)
+	log.Infof("the pink group managed delete group:%s success", group.name)
 }
 
 // add group with name
@@ -89,7 +91,7 @@ func (managed *PinkGroupManaged) addPinkGroup(name, path string) {
 		managed.Lock()
 		managed.groups[name] = group
 		managed.Unlock()
-		log.Printf("the pink group managed add group:%s success", group.name)
+		log.Infof("the pink group managed add group:%s success", group.name)
 	}
 
 	group.fetch()
@@ -144,7 +146,7 @@ func (g *PinkGroup) fetch() {
 
 	retries := 0
 RETRY:
-	log.Printf("the pink group %s start fetch clients for %s ...", g.name, path)
+	log.Infof("the pink group %s start fetch clients for %s ...", g.name, path)
 	keys, values, err := g.cli.GetWithPrefix(context.Background(), path)
 
 	if err != nil {
@@ -156,7 +158,7 @@ RETRY:
 	}
 
 	if len(keys) == 0 {
-		log.Printf("the pink group %s has no client for %s ...", g.name, path)
+		log.Warnf("the pink group %s has no client for %s ...", g.name, path)
 		return
 	}
 
@@ -164,7 +166,7 @@ RETRY:
 		name := values[pos]
 		g.addPinkClient(name, path)
 	}
-	log.Printf("the pink group %s finish fetch clients for %s...", g.name, path)
+	log.Infof("the pink group %s finish fetch clients for %s...", g.name, path)
 }
 func (g *PinkGroup) close() {
 	g.closeCh <- true
@@ -173,7 +175,7 @@ func (g *PinkGroup) close() {
 // lookup the clients change
 func (g *PinkGroup) lookup() {
 	path := fmt.Sprintf(protocol.ClientInstancePath, g.name)
-	log.Printf("the pink group %s watch for %s...", g.name, path)
+	log.Infof("the pink group %s watch for %s...", g.name, path)
 	response := g.cli.WatchWithPrefix(path)
 
 	for {
@@ -189,7 +191,7 @@ func (g *PinkGroup) lookup() {
 
 			}
 		case <-g.closeCh:
-			log.Printf("the pink group %s closed...", g.name)
+			log.Warnf("the pink group %s closed...", g.name)
 			return
 		}
 	}
@@ -199,26 +201,26 @@ func (g *PinkGroup) lookup() {
 func (g *PinkGroup) addPinkClient(name, path string) {
 	client, pos := g.getPinkClient(name)
 	if pos >= 0 {
-		log.Printf("the pink group %s has no  pink client %s ,after create", g.name, client.name)
+		log.Warnf("the pink group %s has no  pink client %s ,after create", g.name, client.name)
 		return
 	}
 	client = NewPinkClient(name, path)
 	g.Lock()
 	g.clients = append(g.clients, client)
 	g.Unlock()
-	log.Printf("the pink group %s add pink client %s success", g.name, name)
+	log.Infof("the pink group %s add pink client %s success", g.name, name)
 }
 
 func (g *PinkGroup) deletePinkClient(name string) {
 	_, pos := g.getPinkClient(name)
 	if pos == -1 {
-		log.Printf("the pink group %s not found pink client for name %s", g.name, name)
+		log.Warnf("the pink group %s not found pink client for name %s", g.name, name)
 		return
 	}
 	g.Lock()
 	g.clients = append(g.clients[:pos], g.clients[pos+1:]...)
 	g.Unlock()
-	log.Printf("the pink group %s has  delete pink client  %s", g.name, name)
+	log.Infof("the pink group %s has  delete pink client  %s", g.name, name)
 
 }
 
@@ -245,7 +247,7 @@ func (g *PinkGroup) getPinkClient(name string) (*PinkClient, int) {
 	g.RLock()
 	defer g.RUnlock()
 	if len(g.clients) == 0 {
-		log.Printf("the pink group %s has no pink client %s", g.name, name)
+		log.Warnf("the pink group %s has no pink client %s", g.name, name)
 		return nil, -1
 	}
 

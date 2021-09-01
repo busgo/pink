@@ -6,12 +6,12 @@ import (
 	"github.com/busgo/pink/http/check"
 	"github.com/busgo/pink/http/model"
 	"github.com/busgo/pink/pkg/etcd"
+	"github.com/busgo/pink/pkg/log"
 	"github.com/busgo/pink/pkg/protocol"
 	"github.com/busgo/pink/pkg/protocol/builder"
 	"github.com/busgo/pink/pkg/util"
 	"github.com/busgo/pink/schedule"
 	"github.com/labstack/echo/v4"
-	"log"
 	"math/rand"
 	"strings"
 	"time"
@@ -172,10 +172,10 @@ func (h *PinkWebHandler) JobExecute(c echo.Context) error {
 	ctx, _ = context.WithTimeout(context.Background(), time.Second*3)
 	err = h.etcdCli.PutWithNotExist(ctx, path, content)
 	if err != nil {
-		log.Printf("create execute plan snapshot %s  for ip %s fail err %+v", executeSnapshot.Encode(), ip, err)
+		log.Errorf("create execute plan snapshot %s  for ip %s fail err %+v", executeSnapshot.Encode(), ip, err)
 		return WriteBusinessError(c, err.Error())
 	}
-	log.Printf(" create execute plan snapshot %s  for ip %s success", content, ip)
+	log.Infof(" create execute plan snapshot %s  for ip %s success", content, ip)
 	return WriteOK(c, fmt.Sprintf("dispatch the task to client:%s", ip))
 }
 

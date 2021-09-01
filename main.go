@@ -10,9 +10,9 @@ import (
 	"github.com/busgo/pink/node"
 	"github.com/busgo/pink/pkg/bus"
 	"github.com/busgo/pink/pkg/etcd"
+	"github.com/busgo/pink/pkg/log"
 	"github.com/busgo/pink/schedule"
 	"go.uber.org/dig"
-	"log"
 	"time"
 )
 
@@ -48,10 +48,11 @@ func main() {
 	flag.Parse()
 	app := BuildApp()
 	err := app.Invoke(func(s *http.Service) error {
-		log.Printf("http service start run......")
+		log.Infof("http service start run......")
 		return s.Run()
 	})
 	if err != nil {
+		log.Errorf("the pink service start fail %+v", err)
 		panic(err)
 	}
 

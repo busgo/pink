@@ -2,10 +2,10 @@ package etcd
 
 import (
 	"context"
+	"github.com/busgo/pink/pkg/log"
 	"go.etcd.io/etcd/api/v3/mvccpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/concurrency"
-	"log"
 	"sync"
 	"time"
 )
@@ -67,7 +67,7 @@ func NewEtcdCli(config *CliConfig) (*Cli, error) {
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
 	_, err = c.Get(ctx, "one")
 	if err != nil {
-		log.Printf("can not connect the etcd endpoints %+v.......%+v", config.Endpoints, err)
+		log.Errorf("can not connect the etcd endpoints %+v.......%+v", config.Endpoints, err)
 		return nil, err
 	}
 	return &Cli{
@@ -150,10 +150,7 @@ func (cli *Cli) PutWithNotExist(ctx context.Context, key, value string) error {
 	tx := cli.c.Txn(ctx).If(clientv3.Compare(clientv3.Version(key), "=", 0)).
 		Then(clientv3.OpPut(key, value))
 
-	resp, err := tx.Commit()
-
-	log.Printf("resp:%+v", resp)
-
+	_, err := tx.Commit()
 	return err
 }
 
@@ -204,10 +201,9 @@ func keepaliveHandle(key string, ch <-chan *clientv3.LeaseKeepAliveResponse) {
 		case c := <-ch:
 
 			if c == nil {
-				log.Printf("the keep alive key:%s has closed", key)
+				log.Warnf("the keep alive key:%s has closed", key)
 				return
 			}
-			//log.Printf("keep alive for key:%s .................%+v", key, c)
 		}
 	}
 }
@@ -249,7 +245,7 @@ func keyChangeHandle(prefix string, watchChan clientv3.WatchChan, keyChangeCh ch
 		select {
 		case ch, ok := <-watchChan:
 			if !ok {
-				log.Printf("the watch prefix key:%s has cancel", prefix)
+				log.Warnf("the watch prefix key:%s has cancel", prefix)
 				keyChangeCh <- &KeyChange{
 					Event: KeyCancelChangeEvent,
 					Key:   prefix,
@@ -289,7 +285,7 @@ func (cli *Cli) Campaign(ctx context.Context, id, prefix string, ttl int64) erro
 	// create a session
 	session, err := concurrency.NewSession(cli.c, concurrency.WithTTL(int(ttl)))
 	if err != nil {
-		log.Printf("new session fail,id:%s,prefix:%s,%+v", id, prefix, err)
+		log.Errorf("new session fail,id:%s,prefix:%s,%+v", id, prefix, err)
 		return err
 	}
 
@@ -307,7 +303,7 @@ func (cli *Cli) getElection(prefix string) (*concurrency.Election, error) {
 	// create a session
 	session, err := concurrency.NewSession(cli.c)
 	if err != nil {
-		log.Printf("new session fail,prefix:%s,%+v", prefix, err)
+		log.Errorf("new session fail,prefix:%s,%+v", prefix, err)
 		return nil, err
 	}
 	election = concurrency.NewElection(session, prefix)

@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"github.com/busgo/pink/pkg/bus"
 	"github.com/busgo/pink/pkg/etcd"
+	"github.com/busgo/pink/pkg/log"
 	"github.com/busgo/pink/pkg/protocol"
 	"github.com/busgo/pink/pkg/util"
-	"log"
+
 	"time"
 )
 
@@ -45,7 +46,7 @@ func (pe *PinkExecutor) lookup() {
 		case <-ticker:
 			pe.scanScheduleSnapshot()
 		case state := <-sub.Receive():
-			log.Printf("the pink executor receive the pink node state change event %d", state)
+			log.Infof("the pink executor receive the pink node state change event %d", state)
 			pe.state = state.(int)
 		}
 	}
@@ -55,10 +56,10 @@ func (pe *PinkExecutor) lookup() {
 func (pe *PinkExecutor) dealScheduleSnapshot(snapshot *protocol.SchedulePlanSnapshot) error {
 	ip, err := pe.groupManaged.UnParkPinkClient(snapshot.Group)
 	if err != nil {
-		log.Printf("the pink executor deal snapshot %+v unpark the pink client fail %+v", snapshot, err)
+		log.Errorf("the pink executor deal snapshot %+v unpark the pink client fail %+v", snapshot, err)
 		return pe.addScheduleSnapshot(snapshot)
 	}
-	log.Printf("execute ip ----> %s", ip)
+	log.Debugf("execute ip ----> %s", ip)
 	return pe.execute(ip, snapshot)
 }
 
@@ -68,23 +69,23 @@ func (pe *PinkExecutor) scanScheduleSnapshot() {
 	if pe.state != protocol.Leader {
 		return
 	}
-	log.Printf("the pink executor start scan schedule snapshot")
+	log.Infof("the pink executor start scan schedule snapshot")
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*3)
 	keys, values, err := pe.etcdCli.GetWithPrefix(ctx, protocol.ScheduleSnapshotPath)
 	if err != nil {
-		log.Printf("the pink executor start scan schedule snapshot  fail %+v", err)
+		log.Errorf("the pink executor start scan schedule snapshot  fail %+v", err)
 		return
 	}
 
 	if len(values) == 0 {
-		log.Printf("the pink executor start scan schedule snapshot the retry schedule snapshot not found")
+		log.Warnf("the pink executor start scan schedule snapshot the retry schedule snapshot not found")
 		return
 	}
 
 	for pos, value := range values {
 		snapshot := new(protocol.SchedulePlanSnapshot).Decode(value)
 		if pe.dealScheduleSnapshot(snapshot) == nil {
-			log.Printf("the pink executor start delete schedule snapshot %s", value)
+			log.Warnf("the pink executor start delete schedule snapshot %s", value)
 			_ = pe.etcdCli.Delete(ctx, keys[pos])
 		}
 	}
@@ -97,7 +98,7 @@ func (pe *PinkExecutor) addScheduleSnapshot(snapshot *protocol.SchedulePlanSnaps
 	path := fmt.Sprintf("%s%s", protocol.ScheduleSnapshotPath, snapshot.Id)
 	err := pe.etcdCli.PutWithNotExist(ctx, path, snapshot.Encode())
 	if err != nil {
-		log.Printf("the pink executor put schedule snapshot %+v fail %+v", snapshot, err)
+		log.Errorf("the pink executor put schedule snapshot %+v fail %+v", snapshot, err)
 		return err
 	}
 	return nil
@@ -131,9 +132,9 @@ func (pe *PinkExecutor) execute(ip string, snapshot *protocol.SchedulePlanSnapsh
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*3)
 	err := pe.etcdCli.PutWithNotExist(ctx, path, content)
 	if err != nil {
-		log.Printf("the pink executor create execute plan snapshot %s  for ip %s fail err %+v", snapshot.Encode(), ip, err)
+		log.Errorf("the pink executor create execute plan snapshot %s  for ip %s fail err %+v", snapshot.Encode(), ip, err)
 		return pe.addScheduleSnapshot(snapshot)
 	}
-	log.Printf("the pink executor create execute plan snapshot %s  for ip %s success", content, ip)
+	log.Infof("the pink executor create execute plan snapshot %s  for ip %s success", content, ip)
 	return nil
 }

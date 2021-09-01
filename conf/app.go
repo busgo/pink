@@ -1,29 +1,32 @@
 package conf
 
 import (
+	"github.com/busgo/pink/pkg/log"
 	"github.com/spf13/viper"
-	"log"
 	"os"
 )
 
 type AppConf struct {
 	Etcd struct {
-		Endpoints   []string `yaml:"endpoints"`
-		UserName    string   `yaml:"user_name"`
-		Password    string   `yaml:"password"`
-		DialTimeout int64    `yaml:"dial_timeout"`
+		Endpoints   []string
+		UserName    string
+		Password    string
+		DialTimeout int64
 	}
 	Mysql struct {
-		DSN string `yaml:"dsn"`
+		DSN string
 	}
-	Port int32 `yaml:"port"`
+	Log struct {
+		FileName string
+	}
+	Port int32
 }
 
 func NewAppConf(filePath string) (*AppConf, error) {
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		log.Printf("can not open file:%s", filePath)
+		log.Errorf("can not open file:%s", filePath)
 		return nil, err
 	}
 	v := viper.New()
