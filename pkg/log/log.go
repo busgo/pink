@@ -76,8 +76,8 @@ func NewLoggerSugar(serviceName, logFile string, level int32) error {
 		lowPriority,
 	)
 
-	zap.Fields(zap.String("service_name", serviceName))
-	logger := zap.New(zcore, zap.AddCallerSkip(CallerSkipNum))
+	fields := zap.Fields(zap.String("service_name", serviceName))
+	logger := zap.New(zcore, zap.AddCallerSkip(CallerSkipNum), fields)
 	s = logger.Sugar()
 	return nil
 }
