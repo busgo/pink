@@ -16,8 +16,10 @@ services:
       - "8001:8001"
     links:
       - etcd
+      - mysql
     depends_on:
       - etcd
+      - mysql
   console:
     build:
       context: ./static/
@@ -49,3 +51,14 @@ services:
     depends_on:
       - pink
       - etcd
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+
+    volumes:
+      - /var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d/
+    ports:
+      - "3306:3306"
