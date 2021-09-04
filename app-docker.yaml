@@ -9,7 +9,7 @@ etcd:
   password:
   dialTimeout: 5
 mysql:
-  dsn: root:123456@tcp(localhost:3306)/pink
+  dsn: root:123456@tcp(mysql:3306)/pink
 
 log:
   fileName: pink.log

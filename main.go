@@ -4,6 +4,8 @@ import (
 	"flag"
 	"github.com/busgo/pink/collector"
 	"github.com/busgo/pink/conf"
+	"github.com/busgo/pink/db"
+	"github.com/busgo/pink/db/repository"
 	"github.com/busgo/pink/executor"
 	"github.com/busgo/pink/http"
 	"github.com/busgo/pink/http/handler"
@@ -24,6 +26,8 @@ func BuildApp() *dig.Container {
 	_ = app.Provide(func() (*conf.AppConf, error) {
 		return conf.NewAppConf(*confFile)
 	})
+
+	_ = app.Provide(db.NewDB)
 	_ = app.Provide(func(app *conf.AppConf) (*etcd.Cli, error) {
 		return etcd.NewEtcdCli(&etcd.CliConfig{
 			Endpoints:   app.Etcd.Endpoints,
@@ -32,6 +36,10 @@ func BuildApp() *dig.Container {
 			DialTimeout: time.Second * time.Duration(app.Etcd.DialTimeout),
 		})
 	})
+
+	// repository
+	_ = app.Provide(repository.NewExecuteSnapshotRepository)
+
 	_ = app.Provide(bus.NewEventBus)
 	_ = app.Provide(collector.NewPinkCollector)
 	_ = app.Provide(executor.NewPinkGroupManaged)
