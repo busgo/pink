@@ -53,9 +53,13 @@ type ClientsRequest struct {
 }
 
 type ExecuteSnapshotsRequest struct {
-	Group string `json:"group"`
-	Ip    string `json:"ip"`
-	Id    string `json:"id"`
+	Id        string `json:"id"`
+	JobId     string `json:"job_id"`
+	Group     string `json:"group"`
+	Ip        string `json:"ip"`
+	State     string `json:"state"`
+	StartTime string `json:"start_time"`
+	EndTime   string `json:"end_time"`
 }
 
 type ScheduleSnapshotDeleteRequest struct {

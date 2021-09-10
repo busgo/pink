@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"github.com/busgo/pink/db/repository"
 	"github.com/busgo/pink/http/check"
 	"github.com/busgo/pink/http/model"
 	"github.com/busgo/pink/pkg/etcd"
@@ -19,12 +20,13 @@ import (
 
 // PinkWebHandler  web api
 type PinkWebHandler struct {
-	etcdCli   *etcd.Cli
-	scheduler *schedule.PinkScheduler
+	etcdCli                      *etcd.Cli
+	scheduler                    *schedule.PinkScheduler
+	executeSnapshotHisRepository *repository.ExecuteSnapshotHisRepository
 }
 
-func NewPinkWebHandler(etcdCli *etcd.Cli, scheduler *schedule.PinkScheduler) *PinkWebHandler {
-	return &PinkWebHandler{etcdCli: etcdCli, scheduler: scheduler}
+func NewPinkWebHandler(etcdCli *etcd.Cli, scheduler *schedule.PinkScheduler, executeSnapshotHisRepository *repository.ExecuteSnapshotHisRepository) *PinkWebHandler {
+	return &PinkWebHandler{etcdCli: etcdCli, scheduler: scheduler, executeSnapshotHisRepository: executeSnapshotHisRepository}
 }
 
 // add job conf
