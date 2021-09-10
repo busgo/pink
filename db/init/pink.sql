@@ -18,8 +18,7 @@
 CREATE
 DATABASE IF NOT EXISTS pink default charset utf8mb4 COLLATE utf8mb4_general_ci;
 
-use
-pink;
+use pink;
 
 -- ----------------------------
 -- Table structure for execute_snapshot
