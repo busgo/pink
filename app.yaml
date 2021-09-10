@@ -5,7 +5,7 @@ port: 8001
 etcd:
   endpoints:
     - "127.0.0.1:2379"
-  userName: jack
+  userName:
   password:
   dialTimeout: 5
 

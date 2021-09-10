@@ -3,6 +3,7 @@ package executor
 import (
 	"context"
 	"fmt"
+	"github.com/busgo/pink/collector"
 	"github.com/busgo/pink/pkg/bus"
 	"github.com/busgo/pink/pkg/etcd"
 	"github.com/busgo/pink/pkg/log"
@@ -18,13 +19,15 @@ type PinkExecutor struct {
 	groupManaged           *PinkGroupManaged
 	state                  int
 	eventBus               *bus.EventBus
+	collector              *collector.PinkCollector
 }
 
-func NewPinkExecutor(etcdCli *etcd.Cli, eventBus *bus.EventBus, groupManaged *PinkGroupManaged) *PinkExecutor {
+func NewPinkExecutor(etcdCli *etcd.Cli, eventBus *bus.EventBus, groupManaged *PinkGroupManaged, collector *collector.PinkCollector) *PinkExecutor {
 	pe := &PinkExecutor{etcdCli: etcdCli,
 		scheduleSnapshotPlanCh: make(chan *protocol.SchedulePlanSnapshot, 32),
 		groupManaged:           groupManaged,
 		state:                  protocol.Follower,
+		collector:              collector,
 		eventBus:               eventBus,
 	}
 	go pe.lookup()
