@@ -42,3 +42,8 @@ func (repo *ExecuteSnapshotHisRepository) Insert(snapshot *model.ExecuteSnapshot
 
 	return err
 }
+
+func (repo *ExecuteSnapshotHisRepository) SearchExecuteSnapshotHisByPage() {
+
+	//repo.connection.NamedQuery()
+}
