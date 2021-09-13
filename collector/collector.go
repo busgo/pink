@@ -91,7 +91,6 @@ func (c *PinkCollector) dealExecuteSnapshotHisChange(kc *etcd.KeyChange) {
 func (c *PinkCollector) saveExecuteSnapshotHisToDB(snapshot *protocol.ExecuteSnapshot) {
 
 	his := &model.ExecuteSnapshotHis{
-
 		SnapshotId:   snapshot.Id,
 		JobId:        snapshot.JobId,
 		JobName:      snapshot.Name,
@@ -103,6 +102,7 @@ func (c *PinkCollector) saveExecuteSnapshotHisToDB(snapshot *protocol.ExecuteSna
 		State:        snapshot.State,
 		BeforeTime:   snapshot.BeforeTime,
 		ScheduleTime: snapshot.ScheduleTime,
+		StartTime:    snapshot.StartTime,
 		EndTime:      snapshot.EndTime,
 		Times:        snapshot.Times,
 		Mobile:       snapshot.Mobile,

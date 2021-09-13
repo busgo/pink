@@ -33,6 +33,7 @@ type ExecuteSnapshotHis struct {
 	State        int32  `db:"state"`
 	BeforeTime   string `db:"before_time"`
 	ScheduleTime string `db:"schedule_time"`
+	StartTime    string `db:"start_time"`
 	EndTime      string `db:"end_time"`
 	Times        int64  `db:"times"`
 	Mobile       string `db:"mobile"`

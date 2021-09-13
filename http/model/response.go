@@ -110,3 +110,23 @@ func (e *ExecuteSnapshotDetails) Decode(content string) *ExecuteSnapshotDetails 
 	_ = json.Unmarshal([]byte(content), e)
 	return e
 }
+
+type ExecuteSnapshotHisDetails struct {
+	Id           int64  `json:"id"`
+	SnapshotId   string `json:"snapshot_id"`
+	JobId        string `json:"job_id"`
+	JobName      string `json:"job_name"`
+	Group        string `json:"group"`
+	Cron         string `json:"cron"`
+	Target       string `json:"target"`
+	Ip           string `json:"ip"`
+	Param        string `json:"param"`
+	State        int32  `json:"state"`
+	BeforeTime   string `json:"before_time"`
+	ScheduleTime string `json:"schedule_time"`
+	StartTime    string `json:"start_time"`
+	EndTime      string `json:"end_time"`
+	Times        int64  `json:"times"`
+	Mobile       string `json:"mobile"`
+	Remark       string `json:"remark"`
+}

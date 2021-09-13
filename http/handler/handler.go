@@ -488,23 +488,41 @@ func (h *PinkWebHandler) ScheduleSnapshotDelete(c echo.Context) error {
  * execute history snapshot
  */
 func (h *PinkWebHandler) ExecuteHistorySnapshots(c echo.Context) error {
-	req := new(model.ExecuteSnapshotsRequest)
+	req := new(model.ExecuteHistorySnapshotsRequest)
 	_ = c.Bind(req)
-	prefix := protocol.ExecuteSnapshotHistoryPath
-	if strings.TrimSpace(req.Id) != "" {
-		prefix = fmt.Sprintf("%s%s", protocol.ExecuteSnapshotHistoryPath, req.Id)
-	}
-	_, values, err := h.etcdCli.GetWithPrefix(c.Request().Context(), prefix)
+
+	records, err := h.executeSnapshotHisRepository.SearchExecuteSnapshotHisByPage(req)
 	if err != nil {
 		return WriteBusinessError(c, err.Error())
 	}
-	details := make([]*model.ExecuteSnapshotDetails, 0)
-	if len(values) == 0 {
+
+	details := make([]*model.ExecuteSnapshotHisDetails, 0)
+
+	if len(records) == 0 {
 		return WriteOK(c, details)
 	}
 
-	for _, value := range values {
-		details = append(details, new(model.ExecuteSnapshotDetails).Decode(value))
+	for _, record := range records {
+
+		detail := &model.ExecuteSnapshotHisDetails{
+			Id:           record.Id,
+			JobId:        record.JobId,
+			SnapshotId:   record.SnapshotId,
+			JobName:      record.JobName,
+			Group:        record.Group,
+			Cron:         record.Cron,
+			Target:       record.Target,
+			Ip:           record.Ip,
+			Param:        record.Param,
+			State:        record.State,
+			BeforeTime:   record.BeforeTime,
+			ScheduleTime: record.ScheduleTime,
+			EndTime:      record.EndTime,
+			Times:        record.Times,
+			Mobile:       record.Mobile,
+			Remark:       record.Remark,
+		}
+		details = append(details, detail)
 	}
 	return WriteOK(c, details)
 }

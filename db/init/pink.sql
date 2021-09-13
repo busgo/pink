@@ -36,6 +36,7 @@ CREATE TABLE `execute_snapshot_his`
     `param`         varchar(255) DEFAULT NULL,
     `state`         tinyint(4) DEFAULT NULL,
     `before_time`   varchar(32) NOT NULL,
+    `start_time`    varchar(32) NOT NULL,
     `schedule_time` varchar(32) NOT NULL,
     `end_time`      varchar(32)  DEFAULT NULL,
     `times`         bigint(20) NOT NULL,

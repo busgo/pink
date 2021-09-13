@@ -67,9 +67,16 @@ type ScheduleSnapshotDeleteRequest struct {
 }
 
 type ExecuteHistorySnapshotsRequest struct {
-	//Group string `json:"group"`
-	//Ip    string `json:"ip"`
-	Id string `json:"id"`
+	JobId             string `json:"job_id"`
+	SnapshotId        string `json:"snapshot_id"`
+	JobName           string `json:"job_name"`
+	Group             string `json:"group"`
+	Ip                string `json:"ip"`
+	State             int32  `json:"state"`
+	ScheduleStartTime string `json:"schedule_start_time"`
+	ScheduleEndTime   string `json:"schedule_end_time"`
+	PageNo            int32  `json:"page_no"`
+	PageSize          int32  `json:"page_size"`
 }
 
 type ExecuteHistorySnapshotDeleteRequest struct {

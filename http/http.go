@@ -7,7 +7,6 @@ import (
 	"github.com/busgo/pink/node"
 	"github.com/busgo/pink/pkg/etcd"
 	"github.com/busgo/pink/pkg/log"
-	"github.com/busgo/pink/pkg/util"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -57,7 +56,7 @@ func NewHttpService(app *conf.AppConf, etcdCli *etcd.Cli, node *node.PinkNode, h
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{echo.POST, echo.GET, echo.PUT},
 	}))
-	s := &Service{router: router, etcdCli: etcdCli, node: node, h: handler, addr: fmt.Sprintf("%s:%d", util.GetLocalIP(), app.Port)}
+	s := &Service{router: router, etcdCli: etcdCli, node: node, h: handler, addr: fmt.Sprintf(":%d", app.Port)}
 	s.initRoutes()
 	return s
 }
