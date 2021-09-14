@@ -533,11 +533,11 @@ func (h *PinkWebHandler) ExecuteHistorySnapshotDelete(c echo.Context) error {
 
 	req := new(model.ExecuteHistorySnapshotDeleteRequest)
 	_ = c.Bind(req)
-	if strings.TrimSpace(req.Id) == "" {
+	if req.Id <= 0 {
 		return WriteParamError(c, "id is nil")
 	}
 
-	err := h.etcdCli.Delete(c.Request().Context(), fmt.Sprintf("%s%s", protocol.ExecuteSnapshotHistoryPath, req.Id))
+	err := h.executeSnapshotHisRepository.DeleteById(req.Id)
 	if err != nil {
 		return WriteBusinessError(c, err.Error())
 	}

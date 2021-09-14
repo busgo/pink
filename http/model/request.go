@@ -80,5 +80,5 @@ type ExecuteHistorySnapshotsRequest struct {
 }
 
 type ExecuteHistorySnapshotDeleteRequest struct {
-	Id string `json:"id"`
+	Id int64 `json:"id"`
 }

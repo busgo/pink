@@ -81,7 +81,7 @@
       fixed
       prop="id"
       label="Id"
-      width="200"
+      width="80"
       >
     </el-table-column>
     <el-table-column

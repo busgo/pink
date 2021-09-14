@@ -117,3 +117,8 @@ func (repo *ExecuteSnapshotHisRepository) SearchExecuteSnapshotHisByPage(request
 
 	return records, nil
 }
+
+func (repo *ExecuteSnapshotHisRepository) DeleteById(id int64) error {
+	_, err := repo.connection.Exec("DELETE FROM execute_snapshot_his WHERE id =? limit 1 ", id)
+	return err
+}
