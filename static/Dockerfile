@@ -7,5 +7,5 @@ WORKDIR /app
 COPY .  ./
 RUN npm install cnpm -g
 RUN cnpm install
-EXPOSE 8011
+EXPOSE 8002
 ENTRYPOINT cnpm run dev

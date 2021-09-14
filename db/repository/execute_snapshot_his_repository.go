@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	InsertExecuteSnapshotSql = "INSERT INTO execute_snapshot_his(`snapshot_id`,`job_id`,`job_name`, `group`,`cron`,`target`,`ip`,`param`,`state`,`before_time`,`schedule_time`,`end_time`,`times`,`mobile`,`remark`) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	InsertExecuteSnapshotSql = "INSERT INTO execute_snapshot_his(`snapshot_id`,`job_id`,`job_name`, `group`,`cron`,`target`,`ip`,`param`,`state`,`before_time`,`schedule_time`,`start_time`,`end_time`,`times`,`mobile`,`remark`) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 )
 
 // ExecuteSnapshotHisRepository
@@ -37,6 +37,7 @@ func (repo *ExecuteSnapshotHisRepository) Insert(snapshot *model.ExecuteSnapshot
 		snapshot.State,
 		snapshot.BeforeTime,
 		snapshot.ScheduleTime,
+		snapshot.StartTime,
 		snapshot.EndTime,
 		snapshot.Times,
 		snapshot.Mobile,
@@ -96,7 +97,7 @@ func (repo *ExecuteSnapshotHisRepository) SearchExecuteSnapshotHisByPage(request
 	if request.PageSize <= 0 || request.PageSize > 100 {
 		request.PageSize = 10
 	}
-	sql = fmt.Sprintf("%s LIMIT %d,%d", sql, request.PageNo, request.PageSize)
+	sql = fmt.Sprintf("%s LIMIT %d,%d", sql, request.PageNo-1, request.PageSize)
 
 	rows, err := repo.connection.NamedQuery(sql, parameters)
 	if err != nil {

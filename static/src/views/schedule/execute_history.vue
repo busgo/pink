@@ -5,24 +5,74 @@
     <span>执行历史快照列表</span>
   </div>
 
-  <el-form :inline="true" :model="searchForm" class="demo-form-inline" size="small">
-  <!-- <el-form-item label="任务集群">
-    <el-select v-model="searchForm.group" style="width:100%"   placeholder="请选择集群">
+  <el-form :inline="true" :model="searchForm" :label-position="right" label-width="80px" class="demo-form-inline" size="small">
+    <el-row>
+<el-col :span="6">
+      <el-form-item label="任务Id">
+    <el-input type="text" v-model="searchForm.job_id" placeholder="请输入执行快照id"></el-input>
+  </el-form-item>
+  </el-col>
+     <el-col :span="6">
+<el-form-item label="任务集群">
+    <el-select v-model="searchForm.group" style="width:100%" clearable="true"   placeholder="请选择任务集群">
       <el-option v-for="item in groups" :key="item.name" :label="item.remark" :value="item.name"></el-option>
     </el-select>
   </el-form-item>
+     </el-col>
+      <el-col :span="12">
+  <el-form-item label="调度时间">
 
-   <el-form-item label="IP">
+    <el-date-picker
+      v-model="searchForm.schedule_start_time"
+      type="datetime"
+      format="yyyy-MM-dd HH:mm:ss"
+      value-format="yyyy-MM-dd HH:mm:ss"
+      placeholder="选择调度开始时间">
+    </el-date-picker> 至
+     <el-date-picker
+      v-model="searchForm.schedule_end_time"
+      type="datetime"
+      format="yyyy-MM-dd HH:mm:ss"
+      value-format="yyyy-MM-dd HH:mm:ss"
+      placeholder="选择调度结束时间">
+    </el-date-picker>
+
+
+  </el-form-item>
+      </el-col>
+    </el-row>
+
+    <el-row>
+       <el-col :span="6">
+<el-form-item label="快照ID">
+    <el-input type="text" v-model="searchForm.snapshot_id" placeholder="请输入快照Id"></el-input>
+  </el-form-item>
+       </el-col>
+ <el-col :span="6">
+<el-form-item label="IP">
     <el-input type="text" v-model="searchForm.ip" placeholder="请输入ip"></el-input>
-  </el-form-item> -->
-
-   <el-form-item label="ID">
-    <el-input type="text" v-model="searchForm.id" placeholder="请输入执行快照id"></el-input>
+  </el-form-item>
+       </el-col>
+        <el-col :span="6">
+          <el-form-item label="执行状态">
+    <el-select v-model="searchForm.state" clearable="true" style="width:100%"   placeholder="请选执行状态">
+      <el-option label="成功" value="2"></el-option>
+      <el-option label="失败" value="3"></el-option>
+    </el-select>
   </el-form-item>
 
-  <el-form-item>
+        </el-col>
+
+          <el-col :span="6">
+
+            <el-form-item>
     <el-button type="primary" @click="onSearchSubmit" icon="el-icon-search" round>查 询</el-button>
   </el-form-item>
+          </el-col>
+
+    </el-row>
+
+
 </el-form>
   <el-table
     :data="snapshots"
@@ -36,13 +86,18 @@
     </el-table-column>
     <el-table-column
       prop="job_id"
-      label="任务ID"
+      label="任务Id"
       width="200"
       >
     </el-table-column>
-    
     <el-table-column
-      prop="name"
+          prop="snapshot_id"
+          label="快照Id"
+          width="200">
+        </el-table-column>
+
+    <el-table-column
+      prop="job_name"
       label="任务名称"
       width="200">
     </el-table-column>
@@ -51,7 +106,7 @@
       label="集群"
       width="120">
       <template slot-scope="scope">
-            <el-tag  type="primary" size="medium" style="panding-right:3px;">{{scope.row.group}}</el-tag> 
+            <el-tag  type="primary" size="medium" style="panding-right:3px;">{{scope.row.group}}</el-tag>
       </template>
     </el-table-column>
       <el-table-column
@@ -74,7 +129,7 @@
 
     </el-table-column>
 
-   
+
     <el-table-column
       prop="times"
       label="耗时"
@@ -93,7 +148,7 @@
       label="结束时间"
       width="200">
     </el-table-column>
-  
+
      <el-table-column
       prop="schedule_time"
       label="调度时间"
@@ -104,7 +159,7 @@
       label="Cron 表达式"
       width="150">
     </el-table-column>
-     
+
     <el-table-column
       prop="target"
       label="Target"
@@ -131,21 +186,23 @@
 import {findGroupList} from '@/api/group'
 import {findExecuteHistorySnapshots,deleteExecuteHistorySnapshots}from '@/api/schedule'
 export default {
-    
+
     data(){
         return {
+          value1:"",
           groups:[],
             searchForm:{
-
+                schedule_start_time:'',
+                schedule_start_time:'',
             },
             snapshots:[],
             loading:false
-          
+
         }
     },
     created(){
       this.searchExecuteHistorySnapshots()
-     // this.searchGroupList()
+       this.searchGroupList()
     },
     methods:{
  /**
@@ -168,7 +225,7 @@ export default {
         handleDelete(index, row){
                 this.$confirm('确认要删除此任务执行历史快照信息吗？', '友情提示', {}).then(() => {
             this.addLoading = true
-           
+
             let para = {id:row.id}
             deleteExecuteHistorySnapshots(para).then((res) => {
               this.addLoading = false
@@ -185,7 +242,7 @@ export default {
                   type: 'error'
                 })
               }
-             
+
             })
           })
         },

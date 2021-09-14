@@ -517,6 +517,7 @@ func (h *PinkWebHandler) ExecuteHistorySnapshots(c echo.Context) error {
 			State:        record.State,
 			BeforeTime:   record.BeforeTime,
 			ScheduleTime: record.ScheduleTime,
+			StartTime:    record.StartTime,
 			EndTime:      record.EndTime,
 			Times:        record.Times,
 			Mobile:       record.Mobile,
