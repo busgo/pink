@@ -5,7 +5,7 @@
     <span>执行历史快照列表</span>
   </div>
 
-  <el-form :inline="true" :model="searchForm" :label-position="right" label-width="80px" class="demo-form-inline" size="small">
+  <el-form :inline="true" :model="searchForm" label-position="right" label-width="80px" class="demo-form-inline" size="small">
     <el-row>
 <el-col :span="6">
       <el-form-item label="任务Id">
@@ -14,7 +14,7 @@
   </el-col>
      <el-col :span="6">
 <el-form-item label="任务集群">
-    <el-select v-model="searchForm.group" style="width:100%" clearable="true"   placeholder="请选择任务集群">
+    <el-select v-model="searchForm.group" style="width:100%" :clearable="true"   placeholder="请选择任务集群">
       <el-option v-for="item in groups" :key="item.name" :label="item.remark" :value="item.name"></el-option>
     </el-select>
   </el-form-item>
@@ -55,7 +55,7 @@
        </el-col>
         <el-col :span="6">
           <el-form-item label="执行状态">
-    <el-select v-model="searchForm.state" clearable="true" style="width:100%"   placeholder="请选执行状态">
+    <el-select v-model="searchForm.state" :clearable="true" style="width:100%"   placeholder="请选执行状态">
       <el-option label="成功" value="2"></el-option>
       <el-option label="失败" value="3"></el-option>
     </el-select>
@@ -71,9 +71,8 @@
           </el-col>
 
     </el-row>
-
-
 </el-form>
+
   <el-table
     :data="snapshots"
     style="width: 100%">
@@ -128,8 +127,6 @@
     </template>
 
     </el-table-column>
-
-
     <el-table-column
       prop="times"
       label="耗时"
@@ -178,6 +175,19 @@
       </template>
     </el-table-column>
   </el-table>
+ 
+   <div class="block" style="float:right; margin-top:10px;">
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="searchForm.page_no"
+      :page-sizes="[10, 20, 30, 50]"
+      :page-size="searchForm.page_size"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
+  </div>
+
 </el-card>
     </div>
 </template>
@@ -191,6 +201,7 @@ export default {
         return {
           value1:"",
           groups:[],
+          total:100,
             searchForm:{
                 schedule_start_time:'',
                 schedule_start_time:'',
@@ -205,7 +216,18 @@ export default {
        this.searchGroupList()
     },
     methods:{
- /**
+
+      handleSizeChange(pageSize){
+        this.searchForm.page_size =pageSize
+        this.searchForm.page_no =1
+        this.searchExecuteHistorySnapshots()
+      },
+      handleCurrentChange(pageNo){
+        this.searchForm.page_no =pageNo
+        this.searchExecuteHistorySnapshots()
+
+      },
+      /**
        * 任务配置列表搜索
        */
       onSearchSubmit(){
