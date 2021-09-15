@@ -201,10 +201,12 @@ export default {
         return {
           value1:"",
           groups:[],
-          total:100,
+          total:0,
             searchForm:{
                 schedule_start_time:'',
-                schedule_start_time:'',
+                schedule_end_time:'',
+                page_size:10,
+                page_no:1
             },
             snapshots:[],
             loading:false
@@ -274,7 +276,8 @@ export default {
         searchExecuteHistorySnapshots(){
            let param =Object.assign({},this.searchForm)
           findExecuteHistorySnapshots(param).then(resp =>{
-            this.snapshots = resp.data
+            this.snapshots = resp.data.list 
+            this.total = resp.data.total
         })
         }
     }

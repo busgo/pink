@@ -97,7 +97,9 @@ func (repo *ExecuteSnapshotHisRepository) SearchExecuteSnapshotHisByPage(request
 	if request.PageSize <= 0 || request.PageSize > 100 {
 		request.PageSize = 10
 	}
-	sql = fmt.Sprintf("%s LIMIT %d,%d", sql, request.PageNo-1, request.PageSize)
+
+	sql += " ORDER BY id asc "
+	sql = fmt.Sprintf("%s LIMIT %d,%d", sql, request.PageSize*(request.PageNo-1), request.PageSize)
 
 	rows, err := repo.connection.NamedQuery(sql, parameters)
 	if err != nil {
@@ -116,6 +118,64 @@ func (repo *ExecuteSnapshotHisRepository) SearchExecuteSnapshotHisByPage(request
 	}
 
 	return records, nil
+}
+
+func (repo *ExecuteSnapshotHisRepository) SearchExecuteSnapshotHisByCount(request *model2.ExecuteHistorySnapshotsRequest) (int64, error) {
+
+	sql := "SELECT COUNT(*) FROM execute_snapshot_his WHERE 1=1 "
+
+	parameters := make(map[string]interface{})
+	if strings.TrimSpace(request.JobId) != "" {
+		sql = sql + " AND job_id=:jobId "
+		parameters["jobId"] = request.JobId
+	}
+
+	if strings.TrimSpace(request.SnapshotId) != "" {
+		sql = sql + " AND snapshot_id=:snapshotId "
+		parameters["snapshotId"] = request.SnapshotId
+	}
+	if strings.TrimSpace(request.Group) != "" {
+		sql = sql + " AND `group`=:group "
+		parameters["group"] = request.Group
+	}
+	if strings.TrimSpace(request.Ip) != "" {
+		sql = sql + " AND ip=:ip "
+		parameters["ip"] = request.Ip
+	}
+
+	if request.State != 0 {
+		sql = sql + " AND `state`=:state "
+		parameters["state"] = request.State
+	}
+
+	if strings.TrimSpace(request.JobName) != "" {
+		sql = sql + " AND job_name like concat('%',:jobName,'%') "
+		parameters["jobName"] = request.JobName
+	}
+
+	if strings.TrimSpace(request.ScheduleStartTime) != "" {
+		sql = sql + " AND schedule_time >=:scheduleStartTime "
+		parameters["scheduleStartTime"] = request.ScheduleStartTime
+	}
+	if strings.TrimSpace(request.ScheduleEndTime) != "" {
+		sql = sql + " AND schedule_time <=:scheduleEndTime "
+		parameters["scheduleEndTime"] = request.ScheduleEndTime
+	}
+
+	rows, err := repo.connection.NamedQuery(sql, parameters)
+	if err != nil {
+		return 0, err
+	}
+
+	count := int64(0)
+	if rows.Next() {
+		err = rows.Scan(&count)
+		if err != nil {
+			return 0, err
+		}
+
+	}
+	return count, nil
 }
 
 func (repo *ExecuteSnapshotHisRepository) DeleteById(id int64) error {

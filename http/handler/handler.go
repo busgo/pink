@@ -491,6 +491,15 @@ func (h *PinkWebHandler) ExecuteHistorySnapshots(c echo.Context) error {
 	req := new(model.ExecuteHistorySnapshotsRequest)
 	_ = c.Bind(req)
 
+	total, err := h.executeSnapshotHisRepository.SearchExecuteSnapshotHisByCount(req)
+	if err != nil {
+		return WriteBusinessError(c, err.Error())
+	}
+
+	if total == 0 {
+		return WriteOK(c, map[string]interface{}{"total": 0, "list": make([]*model.ExecuteSnapshotHisDetails, 0)})
+	}
+
 	records, err := h.executeSnapshotHisRepository.SearchExecuteSnapshotHisByPage(req)
 	if err != nil {
 		return WriteBusinessError(c, err.Error())
@@ -525,7 +534,9 @@ func (h *PinkWebHandler) ExecuteHistorySnapshots(c echo.Context) error {
 		}
 		details = append(details, detail)
 	}
-	return WriteOK(c, details)
+
+	return WriteOK(c, map[string]interface{}{"total": total, "list": details})
+
 }
 
 // delete execute history snapshot
