@@ -11,6 +11,8 @@ etcd:
 
 mysql:
   dsn: root:123456@tcp(localhost:3306)/pink
+  maxOpenConns: 20
+  maxIdleConns: 10
 
 log:
   fileName: pink.log

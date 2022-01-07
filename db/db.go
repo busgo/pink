@@ -19,7 +19,11 @@ func NewDB(app *conf.AppConf) *DB {
 		panic(err)
 	}
 
-	db.SetMaxOpenConns(20)
-	db.SetMaxIdleConns(10)
+	if err = db.Ping(); err != nil {
+		panic(err)
+	}
+
+	db.SetMaxOpenConns(app.Mysql.MaxOpenConns)
+	db.SetMaxIdleConns(app.Mysql.MaxIdleConns)
 	return &DB{DS: db}
 }
