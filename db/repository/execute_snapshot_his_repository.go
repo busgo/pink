@@ -105,6 +105,7 @@ func (repo *ExecuteSnapshotHisRepository) SearchExecuteSnapshotHisByPage(request
 	if err != nil {
 		return make([]*model.ExecuteSnapshotHis, 0), err
 	}
+	defer rows.Close()
 
 	records := make([]*model.ExecuteSnapshotHis, 0)
 
@@ -166,6 +167,8 @@ func (repo *ExecuteSnapshotHisRepository) SearchExecuteSnapshotHisByCount(reques
 	if err != nil {
 		return 0, err
 	}
+
+	defer rows.Close()
 
 	count := int64(0)
 	if rows.Next() {
