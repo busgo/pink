@@ -14,7 +14,9 @@ type AppConf struct {
 		DialTimeout int64
 	}
 	Mysql struct {
-		DSN string
+		DSN          string
+		MaxOpenConns int
+		MaxIdleConns int
 	}
 	Log struct {
 		FileName    string
